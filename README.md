@@ -7,9 +7,10 @@ This API provides educational symptom checking using Large Language Models (LLMs
 ## Features
 
 - Accepts symptom input via POST request
-- Uses OpenAI's GPT model for reasoning
+- Uses deepseek-chat-v3.1:free via OpenRouter for reasoning
 - Includes safety disclaimers in responses
 - CORS enabled for frontend integration
+- Standalone script available for command-line usage
 
 ## Setup
 
@@ -35,39 +36,19 @@ This API provides educational symptom checking using Large Language Models (LLMs
 
 ## Usage
 
-Run the Flask app:
+### Standalone Script Usage
+
+For command-line usage, run the standalone script:
 ```
-python flask_hello_api.py
+python symptom_checker.py
 ```
 
-The API will be available at `http://localhost:5000`
-
-### Endpoint
-
-- **POST /check_symptoms**
-
-  Request body:
-  ```json
-  {
-    "symptoms": "headache and fever"
-  }
-  ```
-
-  Response:
-  ```json
-  {
-    "analysis": "Possible conditions: Migraine or viral infection...\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
-  }
-  ```
+Enter your symptoms when prompted, and the script will provide an analysis.
 
 ## Safety
 
 - Always consult a healthcare professional for medical advice.
 - This tool is not intended for diagnosis or treatment.
-
-## License
-
-[Add license if needed]
 
 ## Demo
 
