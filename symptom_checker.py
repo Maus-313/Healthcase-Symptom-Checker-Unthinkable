@@ -12,7 +12,11 @@ def get_symptom_analysis(symptoms):
     # Initialize OpenAI client with OpenRouter
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key=api_key
+        api_key=api_key,
+        default_headers={
+            "HTTP-Referer": "http://localhost",
+            "X-Title": "Healthcare Symptom Checker"
+        }
     )
     
     # Use LLM for reasoning and suggestion generation
@@ -22,8 +26,13 @@ def get_symptom_analysis(symptoms):
         response = client.chat.completions.create(
             model="deepseek/deepseek-chat-v3.1:free",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant for educational symptom checking. Always include a disclaimer that this is not medical advice."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system", 
+                    "content": "You are a helpful assistant for educational symptom checking. Always include a disclaimer that this is not medical advice."},
+                {
+                    "role": "user",
+                    "content": prompt
+                    }
             ],
             max_tokens=300,
             temperature=0.5
@@ -41,7 +50,6 @@ if __name__ == "__main__":
     analysis = get_symptom_analysis(symptoms)
     print("\nAnalysis:")
     print(analysis)
-    print("\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice.")
 
 # api_key = os.getenv("OPENROUTER_API_KEY")
 # print(api_key)
