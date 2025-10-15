@@ -4,12 +4,15 @@ from openai import OpenAI
 
 load_dotenv()
 
+# testing the api
+# api_key = os.getenv("OPENROUTER_API_KEY")
+# print(api_key)
+
 def get_symptom_analysis(symptoms):
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return "Error: OPENROUTER_API_KEY environment variable not set. Please set your OpenRouter API key in the .env file.\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
     
-    # Initialize OpenAI client with OpenRouter
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
@@ -19,7 +22,6 @@ def get_symptom_analysis(symptoms):
         }
     )
     
-    # Use LLM for reasoning and suggestion generation
     prompt = f"Based on these symptoms: {symptoms}, suggest possible conditions and next steps with educational disclaimer."
     
     try:
@@ -50,6 +52,3 @@ if __name__ == "__main__":
     analysis = get_symptom_analysis(symptoms)
     print("\nAnalysis:")
     print(analysis)
-
-# api_key = os.getenv("OPENROUTER_API_KEY")
-# print(api_key)
