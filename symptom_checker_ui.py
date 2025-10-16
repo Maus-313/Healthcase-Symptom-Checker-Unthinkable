@@ -13,7 +13,7 @@ class SymptomCheckerUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Healthcare Symptom Checker")
-        self.root.geometry("800x700")
+        self.root.geometry("800x850")
 
         # Create notebook for tabs
         self.notebook = ttk.Notebook(root)
