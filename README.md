@@ -60,4 +60,4 @@ Enter your symptoms when prompted, and the script will provide an analysis.
 
 ## Demo
 
-[Link to demo video]
+[Open Google Drive File](https://drive.google.com/file/d/1ik4OOvka9z-ettNsI6SwHi7pZ24zPmra/view?usp=sharing)
