@@ -48,7 +48,7 @@ This API provides educational symptom checking using Large Language Models (LLMs
 
 For command-line usage, run the standalone script:
 ```
-python symptom_checker.py
+python symptom_checker_ui.py
 ```
 
 Enter your symptoms when prompted, and the script will provide an analysis.
