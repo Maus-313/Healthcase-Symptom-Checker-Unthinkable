@@ -11,7 +11,7 @@ except ImportError as e:
     exit(1)
 
 # Import functions from symptom_checker.py
-from symptom_checker import get_symptom_analysis, check_emergency
+from src.healthcase.symptom_checker import get_symptom_analysis, check_emergency
 
 def simulate_user_input(sample_data):
     """Simulate user input with sample data."""

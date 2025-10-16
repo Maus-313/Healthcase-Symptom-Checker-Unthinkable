@@ -89,6 +89,10 @@ class SymptomCheckerUI:
         ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
         ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_basic_info("viral_fever")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_basic_info("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Hep A", command=lambda: self.load_sample_basic_info("hep_a")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="TB", command=lambda: self.load_sample_basic_info("tuberculosis")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="CKD", command=lambda: self.load_sample_basic_info("ckd")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Diabetes", command=lambda: self.load_sample_basic_info("diabetes")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_basic_info("emergency")).pack(side='left', padx=(5,0))
 
     def setup_symptoms_tab(self):
@@ -140,6 +144,10 @@ class SymptomCheckerUI:
         ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
         ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_symptoms("viral_fever")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_symptoms("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Hep A", command=lambda: self.load_sample_symptoms("hep_a")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="TB", command=lambda: self.load_sample_symptoms("tuberculosis")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="CKD", command=lambda: self.load_sample_symptoms("ckd")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Diabetes", command=lambda: self.load_sample_symptoms("diabetes")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_symptoms("emergency")).pack(side='left', padx=(5,0))
 
         canvas.pack(side="left", fill="both", expand=True)
@@ -192,6 +200,10 @@ class SymptomCheckerUI:
         ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
         ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_tests("viral_fever")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_tests("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Hep A", command=lambda: self.load_sample_tests("hep_a")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="TB", command=lambda: self.load_sample_tests("tuberculosis")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="CKD", command=lambda: self.load_sample_tests("ckd")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Diabetes", command=lambda: self.load_sample_tests("diabetes")).pack(side='left', padx=(5,0))
         ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_tests("emergency")).pack(side='left', padx=(5,0))
 
         canvas.pack(side="left", fill="both", expand=True)
@@ -482,6 +494,186 @@ class SymptomCheckerUI:
                     "Creatinine": 0.9,
                     "Malaria": False,
                     "Dengue": True,
+                    "Typhoid": False
+                }
+            },
+            "hep_a": {
+                "basic_info": {
+                    "age": 35,
+                    "gender": "M",
+                    "weight": 75.0,
+                    "temperature": 38.0,
+                    "duration": "7",
+                    "chronic_diseases": False
+                },
+                "symptoms": {
+                    "fever": True,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": False,
+                    "body_pain": False,
+                    "nausea": True,
+                    "vomiting": True,
+                    "diarrhea": True,
+                    "rash": False,
+                    "sore_throat": False,
+                    "shortness_of_breath": False,
+                    "chest_pain": False,
+                    "confusion": False,
+                    "recent_travel": True,
+                    "medication": False,
+                    "appetite_change": True,
+                    "urine_change": True,
+                    "weight_loss": True,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": 7,
+                    "cough_type": None
+                },
+                "test_results": {
+                    "WBC": 5500,
+                    "Platelets": 150000,
+                    "Hemoglobin": 13.5,
+                    "Blood_Sugar": 85,
+                    "ALT": 120,
+                    "Creatinine": 0.9,
+                    "Malaria": False,
+                    "Dengue": False,
+                    "Typhoid": False
+                }
+            },
+            "tuberculosis": {
+                "basic_info": {
+                    "age": 40,
+                    "gender": "F",
+                    "weight": 55.0,
+                    "temperature": 37.8,
+                    "duration": "30",
+                    "chronic_diseases": False
+                },
+                "symptoms": {
+                    "fever": True,
+                    "fatigue": True,
+                    "cough": True,
+                    "headache": False,
+                    "body_pain": False,
+                    "nausea": False,
+                    "vomiting": False,
+                    "diarrhea": False,
+                    "rash": False,
+                    "sore_throat": False,
+                    "shortness_of_breath": True,
+                    "chest_pain": True,
+                    "confusion": False,
+                    "recent_travel": False,
+                    "medication": False,
+                    "appetite_change": True,
+                    "urine_change": False,
+                    "weight_loss": True,
+                    "night_sweats": True,
+                    "exposure": True,
+                    "fever_duration": 30,
+                    "cough_type": "productive"
+                },
+                "test_results": {
+                    "WBC": 8000,
+                    "Platelets": 200000,
+                    "Hemoglobin": 11.0,
+                    "Blood_Sugar": 95,
+                    "ALT": 30,
+                    "Creatinine": 0.8,
+                    "Malaria": False,
+                    "Dengue": False,
+                    "Typhoid": False
+                }
+            },
+            "ckd": {
+                "basic_info": {
+                    "age": 55,
+                    "gender": "M",
+                    "weight": 85.0,
+                    "temperature": 36.8,
+                    "duration": "90",
+                    "chronic_diseases": True
+                },
+                "symptoms": {
+                    "fever": False,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": False,
+                    "body_pain": False,
+                    "nausea": True,
+                    "vomiting": True,
+                    "diarrhea": False,
+                    "rash": False,
+                    "sore_throat": False,
+                    "shortness_of_breath": True,
+                    "chest_pain": False,
+                    "confusion": False,
+                    "recent_travel": False,
+                    "medication": True,
+                    "appetite_change": True,
+                    "urine_change": True,
+                    "weight_loss": True,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": None,
+                    "cough_type": None
+                },
+                "test_results": {
+                    "WBC": 7000,
+                    "Platelets": 180000,
+                    "Hemoglobin": 9.5,
+                    "Blood_Sugar": 140,
+                    "ALT": 35,
+                    "Creatinine": 3.2,
+                    "Malaria": False,
+                    "Dengue": False,
+                    "Typhoid": False
+                }
+            },
+            "diabetes": {
+                "basic_info": {
+                    "age": 50,
+                    "gender": "F",
+                    "weight": 90.0,
+                    "temperature": 36.5,
+                    "duration": "180",
+                    "chronic_diseases": True
+                },
+                "symptoms": {
+                    "fever": False,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": False,
+                    "body_pain": False,
+                    "nausea": False,
+                    "vomiting": False,
+                    "diarrhea": False,
+                    "rash": False,
+                    "sore_throat": False,
+                    "shortness_of_breath": False,
+                    "chest_pain": False,
+                    "confusion": False,
+                    "recent_travel": False,
+                    "medication": True,
+                    "appetite_change": True,
+                    "urine_change": True,
+                    "weight_loss": True,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": None,
+                    "cough_type": None
+                },
+                "test_results": {
+                    "WBC": 6500,
+                    "Platelets": 200000,
+                    "Hemoglobin": 12.0,
+                    "Blood_Sugar": 280,
+                    "ALT": 40,
+                    "Creatinine": 1.1,
+                    "Malaria": False,
+                    "Dengue": False,
                     "Typhoid": False
                 }
             },
