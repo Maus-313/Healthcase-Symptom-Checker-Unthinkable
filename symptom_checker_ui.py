@@ -340,16 +340,30 @@ class SymptomCheckerUI:
 
     def perform_analysis(self, user_data):
         try:
-            analysis = get_symptom_analysis(user_data)
-            # Convert markdown to HTML-like text for display
-            html_content = markdown.markdown(analysis, extensions=['extra', 'codehilite'])
-            # Simple HTML to text conversion for ScrolledText
-            plain_text = self.html_to_plain_text(html_content)
-
-            # Update UI in main thread
-            self.root.after(0, lambda: self.display_analysis(plain_text))
+            analysis = ""
+            for chunk in get_symptom_analysis(user_data):
+                analysis += chunk
+                # Update UI incrementally for streaming effect
+                self.root.after(0, lambda: self.update_streaming_text(analysis))
+            # Final update after streaming completes
+            self.root.after(0, lambda: self.finalize_analysis(analysis))
         except Exception as e:
             self.root.after(0, lambda: self.display_error(str(e)))
+
+    def update_streaming_text(self, text):
+        # Convert current text to display format
+        html_content = markdown.markdown(text, extensions=['extra', 'codehilite'])
+        plain_text = self.html_to_plain_text(html_content)
+        self.output_text.delete(1.0, tk.END)
+        self.output_text.insert(tk.END, plain_text)
+        self.output_text.see(tk.END)  # Auto-scroll to bottom
+
+    def finalize_analysis(self, analysis):
+        # Convert final markdown to HTML-like text for display
+        html_content = markdown.markdown(analysis, extensions=['extra', 'codehilite'])
+        plain_text = self.html_to_plain_text(html_content)
+        self.output_text.delete(1.0, tk.END)
+        self.output_text.insert(tk.END, plain_text)
 
     def html_to_plain_text(self, html):
         """Convert basic HTML to plain text for ScrolledText"""

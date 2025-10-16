@@ -31,15 +31,18 @@ def simulate_user_input(sample_data):
     # print("\n" + "="*50)
 
     # Check for emergency
-    emergency = check_emergency(symptoms, basic_info)
+    emergency, reason = check_emergency(symptoms, basic_info)
 
     if not emergency:
         # Get AI analysis
-        analysis = get_symptom_analysis(user_data)
-        print("AI Analysis:")
-        print(analysis)
+        analysis = ""
+        for chunk in get_symptom_analysis(user_data):
+            analysis += chunk
+            print(chunk, end="", flush=True)
+        print("\n---\nEnd!")
     else:
-        print("Emergency detected. Analysis skipped.")
+        print("Emergency detected. Analysis skipped.\n")
+        print(f"Reasons: {reason}")
 
 # Sample data for testing
 sample_viral_fever = {

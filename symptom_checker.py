@@ -171,8 +171,7 @@ def check_emergency(symptoms, basic_info):
 def get_symptom_analysis(user_data):
     api_key = os.getenv("KEY")
     if not api_key:
-        print("Error: KEY not found. Please install required dependencies and set the environment variable.")
-        exit(1)
+        raise ValueError("Error: KEY not found. Please install required dependencies and set the environment variable.")
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -186,7 +185,7 @@ def get_symptom_analysis(user_data):
     Provide response in a clear, structured format."""
 
     try:
-        response = client.chat.completions.create(
+        stream = client.chat.completions.create(
             model="deepseek/deepseek-chat-v3.1:free",
             messages=[
                 {
@@ -198,19 +197,13 @@ def get_symptom_analysis(user_data):
                     "content": prompt
                 }
             ],
-            # max_tokens=300,
-            # temperature=0.5,
+            stream=True
         )
-        analysis = response.choices[0].message.content.strip()
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
     except Exception as e:
-        print(f"API response failed: {e}")
-        print("Please check your API key and internet connection.")
-        exit(1)
-
-    # Add educational disclaimer
-    # disclaimer = "\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
-    # return analysis + disclaimer
-    return analysis
+        raise Exception(f"API response failed: {e}. Please check your API key and internet connection.")
 
 
 def get_mock_analysis(user_data):
