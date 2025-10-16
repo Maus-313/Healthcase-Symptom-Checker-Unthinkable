@@ -4,10 +4,9 @@ from openai import OpenAI
 
 load_dotenv()
 
-# testing the api
-# api_key = os.getenv("OPENROUTER_API_KEY")
+# testing the api key access
+# api_key = os.getenv("KEY")
 # print(api_key)
-
 
 
 def get_basic_info():
@@ -22,7 +21,7 @@ def get_basic_info():
         print("Invalid age entered. Skipping.")
 
     gender = input("Gender (M/F): ").strip().upper()
-    if gender not in ['M', 'F']:
+    if gender not in ["M", "F"]:
         gender = None
         print("Invalid gender. Skipping.")
 
@@ -43,8 +42,12 @@ def get_basic_info():
         duration = None
         print("Invalid duration. Skipping.")
 
-    chronic_diseases = input("Any chronic diseases (e.g., diabetes, hypertension)? (y/n): ").strip().lower()
-    chronic_diseases = chronic_diseases == 'y'
+    chronic_diseases = (
+        input("Any chronic diseases (e.g., diabetes, hypertension)? (y/n): ")
+        .strip()
+        .lower()
+    )
+    chronic_diseases = chronic_diseases == "y"
 
     return {
         "age": age,
@@ -52,8 +55,9 @@ def get_basic_info():
         "weight": weight,
         "temperature": temperature,
         "duration": duration,
-        "chronic_diseases": chronic_diseases
+        "chronic_diseases": chronic_diseases,
     }
+
 
 def get_symptoms():
     """Ask for symptoms with yes/no questions."""
@@ -78,12 +82,12 @@ def get_symptoms():
         "urine_change": "Urine changes? (y/n): ",
         "weight_loss": "Weight loss? (y/n): ",
         "night_sweats": "Night sweats? (y/n): ",
-        "exposure": "Recent exposure to someone sick? (y/n): "
+        "exposure": "Recent exposure to someone sick? (y/n): ",
     }
 
     for symptom, question in symptom_questions.items():
         answer = input(question).strip().lower()
-        symptoms[symptom] = answer == 'y'
+        symptoms[symptom] = answer == "y"
 
     # Additional details for some symptoms
     if symptoms.get("fever"):
@@ -95,15 +99,18 @@ def get_symptoms():
 
     if symptoms.get("cough"):
         cough_type = input("Cough type (dry/productive): ").strip().lower()
-        symptoms["cough_type"] = cough_type if cough_type in ['dry', 'productive'] else None
+        symptoms["cough_type"] = (
+            cough_type if cough_type in ["dry", "productive"] else None
+        )
 
     return symptoms
+
 
 def get_test_results():
     """Ask for diagnostic test results."""
     test_results = {}
     has_tests = input("Do you have blood test results? (y/n): ").strip().lower()
-    if has_tests != 'y':
+    if has_tests != "y":
         return test_results
 
     test_questions = {
@@ -115,14 +122,14 @@ def get_test_results():
         "Creatinine": "Enter Creatinine (Kidney) level: ",
         "Malaria": "Malaria test result (positive/negative): ",
         "Dengue": "Dengue test result (positive/negative): ",
-        "Typhoid": "Typhoid test result (positive/negative): "
+        "Typhoid": "Typhoid test result (positive/negative): ",
     }
 
     for test, question in test_questions.items():
         value = input(question).strip()
         if value:
             if test in ["Malaria", "Dengue", "Typhoid"]:
-                test_results[test] = value.lower() == 'positive'
+                test_results[test] = value.lower() == "positive"
             else:
                 try:
                     test_results[test] = float(value)
@@ -132,6 +139,7 @@ def get_test_results():
             test_results[test] = None
 
     return test_results
+
 
 def check_emergency(symptoms, basic_info):
     """Check for severe symptoms and alert."""
@@ -151,32 +159,31 @@ def check_emergency(symptoms, basic_info):
         reasons.append("Shortness of breath with chest pain")
 
     if severe:
-        print("\n⚠️ EMERGENCY ALERT: Based on your symptoms, seek immediate medical attention!")
+        print(
+            "\n⚠️ EMERGENCY ALERT: Based on your symptoms, seek immediate medical attention!"
+        )
         print("Reasons:", ", ".join(reasons))
         print("Call emergency services or go to the nearest hospital.\n")
 
     return severe
 
+
 def get_symptom_analysis(user_data):
-    api_key = os.getenv("OPENROUTER_API_KEY")
+    api_key = os.getenv("KEY")
     if not api_key:
-        # Fallback to mock analysis for testing
-        return get_mock_analysis(user_data)
+        print("Error: KEY not found. Please install required dependencies and set the environment variable.")
+        exit(1)
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
-        default_headers={
-            "HTTP-Referer": "http://localhost",
-            "X-Title": "Healthcare Symptom Checker"
-        }
     )
 
     prompt = f"""Based on the following user data, list the top 3 most likely diseases with confidence percentages and reasoning for each. Also suggest next steps.
 
-User Data: {user_data}
+    User Data: {user_data}
 
-Provide response in a clear, structured format."""
+    Provide response in a clear, structured format."""
 
     try:
         response = client.chat.completions.create(
@@ -191,17 +198,19 @@ Provide response in a clear, structured format."""
                     "content": prompt
                 }
             ],
-            max_tokens=300,
-            temperature=0.5
+            # max_tokens=300,
+            # temperature=0.5,
         )
         analysis = response.choices[0].message.content.strip()
     except Exception as e:
-        # Fallback to mock analysis when API fails
-        analysis = get_mock_analysis(user_data)
+        print(f"API response failed: {e}")
+        print("Please check your API key and internet connection.")
+        exit(1)
 
     # Add educational disclaimer
     disclaimer = "\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
     return analysis + disclaimer
+
 
 def get_mock_analysis(user_data):
     """Generate mock analysis based on symptoms and test results for testing purposes."""
@@ -213,23 +222,49 @@ def get_mock_analysis(user_data):
     diseases = []
 
     # Check for Dengue
-    if (symptoms.get("fever") and symptoms.get("rash") and symptoms.get("recent_travel") and
-        test_results.get("Dengue") and test_results.get("Platelets", 200000) < 100000):
-        diseases.append(("Dengue", 75, "High fever, rash, low platelets, positive dengue test"))
+    if (
+        symptoms.get("fever")
+        and symptoms.get("rash")
+        and symptoms.get("recent_travel")
+        and test_results.get("Dengue")
+        and test_results.get("Platelets", 200000) < 100000
+    ):
+        diseases.append(
+            ("Dengue", 75, "High fever, rash, low platelets, positive dengue test")
+        )
 
     # Check for Viral Fever
-    if (symptoms.get("fever") and symptoms.get("fatigue") and symptoms.get("headache") and
-        not test_results.get("Dengue") and not test_results.get("Malaria")):
-        diseases.append(("Viral Fever", 60, "Common flu-like symptoms with normal test results"))
+    if (
+        symptoms.get("fever")
+        and symptoms.get("fatigue")
+        and symptoms.get("headache")
+        and not test_results.get("Dengue")
+        and not test_results.get("Malaria")
+    ):
+        diseases.append(
+            ("Viral Fever", 60, "Common flu-like symptoms with normal test results")
+        )
 
     # Check for Malaria
-    if (symptoms.get("fever") and symptoms.get("recent_travel") and test_results.get("Malaria")):
-        diseases.append(("Malaria", 70, "Fever with travel history and positive malaria test"))
+    if (
+        symptoms.get("fever")
+        and symptoms.get("recent_travel")
+        and test_results.get("Malaria")
+    ):
+        diseases.append(
+            ("Malaria", 70, "Fever with travel history and positive malaria test")
+        )
 
     # Check for Typhoid
-    if (symptoms.get("fever") and symptoms.get("nausea") and symptoms.get("diarrhea") and
-        test_results.get("Typhoid")):
-        diseases.append(("Typhoid", 65, "Fever with gastrointestinal symptoms and positive test"))
+    if (
+        symptoms.get("fever")
+        and symptoms.get("nausea")
+        and symptoms.get("diarrhea")
+        and test_results.get("Typhoid")
+    ):
+        diseases.append(
+            ("Typhoid", 65, "Fever with gastrointestinal symptoms and positive test")
+        )
 
     # Default fallback
     if not diseases:
@@ -256,6 +291,7 @@ def get_mock_analysis(user_data):
 
     return response
 
+
 if __name__ == "__main__":
     # Step 1: Collect basic information
     basic_info = get_basic_info()
@@ -270,7 +306,7 @@ if __name__ == "__main__":
     user_data = {
         "basic_info": basic_info,
         "symptoms": symptoms,
-        "test_results": test_results
+        "test_results": test_results,
     }
 
     # Step 5: Check for emergency
@@ -282,4 +318,6 @@ if __name__ == "__main__":
         print("\nAnalysis:")
         print(analysis)
     else:
-        print("Due to emergency symptoms, analysis skipped. Please seek immediate medical help.")
+        print(
+            "Due to emergency symptoms, analysis skipped. Please seek immediate medical help."
+        )

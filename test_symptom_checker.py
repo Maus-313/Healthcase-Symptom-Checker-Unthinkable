@@ -1,17 +1,14 @@
 import os
 import json
 
-# Mock the imports for testing without API
-class MockOpenAI:
-    pass
-
 try:
     from dotenv import load_dotenv
     from openai import OpenAI
     load_dotenv()
-except ImportError:
-    OpenAI = MockOpenAI
-    print("Warning: dotenv or openai not available, using mock analysis")
+except ImportError as e:
+    print(f"Error: Required dependencies not installed. {e}")
+    print("Please install required dependencies: pip install python-dotenv openai")
+    exit(1)
 
 # Import functions from symptom_checker.py
 from symptom_checker import get_symptom_analysis, check_emergency
@@ -29,9 +26,9 @@ def simulate_user_input(sample_data):
         "test_results": test_results
     }
 
-    print("Sample User Data:")
-    print(json.dumps(user_data, indent=2))
-    print("\n" + "="*50)
+    # print("Sample User Data:")
+    # print(json.dumps(user_data, indent=2))
+    # print("\n" + "="*50)
 
     # Check for emergency
     emergency = check_emergency(symptoms, basic_info)
@@ -179,12 +176,12 @@ if __name__ == "__main__":
     print("Test 1: Viral Fever Case")
     simulate_user_input(sample_viral_fever)
 
-    print("\n" + "="*80 + "\n")
+    # print("\n" + "="*80 + "\n")
 
-    print("Test 2: Dengue Case")
-    simulate_user_input(sample_dengue)
+    # print("Test 2: Dengue Case")
+    # simulate_user_input(sample_dengue)
 
-    print("\n" + "="*80 + "\n")
+    # print("\n" + "="*80 + "\n")
 
-    print("Test 3: Emergency Case")
-    simulate_user_input(sample_emergency)
+    # print("Test 3: Emergency Case")
+    # simulate_user_input(sample_emergency)
