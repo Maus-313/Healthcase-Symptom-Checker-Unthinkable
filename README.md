@@ -34,6 +34,14 @@ This API provides educational symptom checking using Large Language Models (LLMs
 5. Set your OpenRouter API key in the `.env` file:
    Replace `your-openrouter-api-key-here` with your actual OpenRouter API key in the `.env` file.
 
+6. Install Tkinter on system level:
+   
+   For Ubuntu: ```sudo apt install python3-tk -y```
+
+   For Windows: ```pip install tk```
+
+   For MacOS: ```brew install python-tk```
+
 ## Usage
 
 ### Standalone Script Usage
