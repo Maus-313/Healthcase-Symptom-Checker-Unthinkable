@@ -364,6 +364,7 @@ class SymptomCheckerUI:
         plain_text = self.html_to_plain_text(html_content)
         self.output_text.delete(1.0, tk.END)
         self.output_text.insert(tk.END, plain_text)
+        self.stop_loading()
 
     def html_to_plain_text(self, html):
         """Convert basic HTML to plain text for ScrolledText"""
