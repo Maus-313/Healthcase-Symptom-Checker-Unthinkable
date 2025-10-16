@@ -308,14 +308,14 @@ class SymptomCheckerUI:
         }
 
         # Check for emergency
-        emergency = check_emergency(self.symptoms, self.basic_info)
+        emergency, reason = check_emergency(self.symptoms, self.basic_info)
 
         if emergency:
             self.output_text.delete(1.0, tk.END)
-            self.output_text.insert(tk.END, "⚠️ EMERGENCY ALERT: Based on your symptoms, seek immediate medical attention!\n\n")
+            self.output_text.insert(tk.END, f"⚠️ EMERGENCY ALERT: Based on your symptoms, seek immediate medical attention!\n\n Reason: {reason}")
             self.output_text.insert(tk.END, "Please call emergency services or go to the nearest hospital.\n\n")
             self.output_text.insert(tk.END, "Analysis skipped due to emergency symptoms.")
-            messagebox.showwarning("Emergency Alert", "Emergency symptoms detected! Please seek immediate medical attention.")
+            messagebox.showwarning("Emergency Alert", f"Emergency symptoms detected! Please seek immediate medical attention. \n\n Reason: {reason}")
             return
 
         # Start loading

@@ -165,7 +165,7 @@ def check_emergency(symptoms, basic_info):
         print("Reasons:", ", ".join(reasons))
         print("Call emergency services or go to the nearest hospital.\n")
 
-    return severe
+    return severe, reasons
 
 
 def get_symptom_analysis(user_data):
