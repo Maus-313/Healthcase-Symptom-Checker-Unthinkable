@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import os
+import threading
 from dotenv import load_dotenv
 from openai import OpenAI
+import markdown
 from symptom_checker import get_symptom_analysis, check_emergency
 
 load_dotenv()
@@ -32,6 +34,12 @@ class SymptomCheckerUI:
         self.basic_info = {}
         self.symptoms = {}
         self.test_results = {}
+
+        # Loading state
+        self.is_loading = False
+
+        # Sample data from test file
+        self.sample_data = self.load_sample_data()
 
         # Setup each tab
         self.setup_basic_info_tab()
@@ -75,6 +83,14 @@ class SymptomCheckerUI:
         self.chronic_var = tk.BooleanVar()
         ttk.Checkbutton(frame, text="Yes", variable=self.chronic_var).pack(anchor='w', padx=40, pady=(0,10))
 
+        # Sample data buttons
+        sample_frame = ttk.Frame(frame)
+        sample_frame.pack(fill='x', padx=20, pady=(10,0))
+        ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
+        ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_basic_info("viral_fever")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_basic_info("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_basic_info("emergency")).pack(side='left', padx=(5,0))
+
     def setup_symptoms_tab(self):
         frame = self.symptoms_frame
 
@@ -117,6 +133,14 @@ class SymptomCheckerUI:
         ttk.Label(scrollable_frame, text="Cough Type (dry/productive):").pack(anchor='w', padx=20, pady=(10,0))
         self.cough_type_var = tk.StringVar()
         ttk.Entry(scrollable_frame, textvariable=self.cough_type_var).pack(fill='x', padx=20, pady=(0,10))
+
+        # Sample data buttons
+        sample_frame = ttk.Frame(scrollable_frame)
+        sample_frame.pack(fill='x', padx=20, pady=(10,0))
+        ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
+        ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_symptoms("viral_fever")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_symptoms("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_symptoms("emergency")).pack(side='left', padx=(5,0))
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -162,6 +186,14 @@ class SymptomCheckerUI:
             self.boolean_test_vars[test] = var
             ttk.Entry(scrollable_frame, textvariable=var).pack(fill='x', padx=20, pady=(0,5))
 
+        # Sample data buttons
+        sample_frame = ttk.Frame(scrollable_frame)
+        sample_frame.pack(fill='x', padx=20, pady=(10,0))
+        ttk.Label(sample_frame, text="Quick Fill:").pack(side='left')
+        ttk.Button(sample_frame, text="Viral Fever", command=lambda: self.load_sample_tests("viral_fever")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Dengue", command=lambda: self.load_sample_tests("dengue")).pack(side='left', padx=(5,0))
+        ttk.Button(sample_frame, text="Emergency", command=lambda: self.load_sample_tests("emergency")).pack(side='left', padx=(5,0))
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
@@ -171,6 +203,10 @@ class SymptomCheckerUI:
         # Title
         ttk.Label(frame, text="Analysis Results", font=('Arial', 14, 'bold')).pack(pady=10)
 
+        # Loading indicator
+        self.loading_label = ttk.Label(frame, text="", font=('Arial', 12))
+        self.loading_label.pack(pady=(0,10))
+
         # Output text area
         self.output_text = scrolledtext.ScrolledText(frame, wrap=tk.WORD, height=20)
         self.output_text.pack(fill='both', expand=True, padx=20, pady=(0,10))
@@ -179,7 +215,8 @@ class SymptomCheckerUI:
         button_frame = ttk.Frame(frame)
         button_frame.pack(fill='x', padx=20, pady=(0,10))
 
-        ttk.Button(button_frame, text="Analyze", command=self.analyze).pack(side='left', padx=(0,10))
+        self.analyze_button = ttk.Button(button_frame, text="Analyze", command=self.analyze)
+        self.analyze_button.pack(side='left', padx=(0,10))
         ttk.Button(button_frame, text="Clear", command=self.clear_all).pack(side='left', padx=(0,10))
         ttk.Button(button_frame, text="Exit", command=self.root.quit).pack(side='right')
 
@@ -256,6 +293,9 @@ class SymptomCheckerUI:
                 self.test_results[test] = None
 
     def analyze(self):
+        if self.is_loading:
+            return
+
         # Collect all data
         self.collect_basic_info()
         self.collect_symptoms()
@@ -278,13 +318,232 @@ class SymptomCheckerUI:
             messagebox.showwarning("Emergency Alert", "Emergency symptoms detected! Please seek immediate medical attention.")
             return
 
-        # Get analysis
+        # Start loading
+        self.start_loading()
+
+        # Run analysis in separate thread
+        analysis_thread = threading.Thread(target=self.perform_analysis, args=(user_data,))
+        analysis_thread.start()
+
+    def start_loading(self):
+        self.is_loading = True
+        self.analyze_button.config(state='disabled')
+        self.loading_label.config(text="🔄 Analyzing symptoms... Please wait.")
+        self.output_text.delete(1.0, tk.END)
+        self.root.update()
+
+    def stop_loading(self):
+        self.is_loading = False
+        self.analyze_button.config(state='normal')
+        self.loading_label.config(text="")
+        self.root.update()
+
+    def perform_analysis(self, user_data):
         try:
             analysis = get_symptom_analysis(user_data)
-            self.output_text.delete(1.0, tk.END)
-            self.output_text.insert(tk.END, analysis)
+            # Convert markdown to HTML-like text for display
+            html_content = markdown.markdown(analysis, extensions=['extra', 'codehilite'])
+            # Simple HTML to text conversion for ScrolledText
+            plain_text = self.html_to_plain_text(html_content)
+
+            # Update UI in main thread
+            self.root.after(0, lambda: self.display_analysis(plain_text))
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to get analysis: {str(e)}")
+            self.root.after(0, lambda: self.display_error(str(e)))
+
+    def html_to_plain_text(self, html):
+        """Convert basic HTML to plain text for ScrolledText"""
+        import re
+
+        # Remove HTML tags but keep structure
+        text = re.sub(r'<h[1-6][^>]*>(.*?)</h[1-6]>', r'\n\1\n' + '='*50 + '\n', html)
+        text = re.sub(r'<h[1-6][^>]*>(.*?)</h[1-6]>', r'\n\1\n' + '-'*30 + '\n', text)
+        text = re.sub(r'<strong[^>]*>(.*?)</strong>', r'\1', text)  # Remove ** markers
+        text = re.sub(r'<em[^>]*>(.*?)</em>', r'\1', text)  # Remove * markers
+        text = re.sub(r'<li[^>]*>(.*?)</li>', r'• \1\n', text)
+        text = re.sub(r'<p[^>]*>(.*?)</p>', r'\1\n\n', text)
+        text = re.sub(r'<br[^>]*>', '\n', text)
+        text = re.sub(r'<[^>]+>', '', text)  # Remove remaining tags
+
+        # Clean up extra whitespace
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        return text.strip()
+
+    def display_analysis(self, analysis):
+        self.stop_loading()
+        self.output_text.insert(tk.END, analysis)
+
+    def display_error(self, error_msg):
+        self.stop_loading()
+        messagebox.showerror("Error", f"Failed to get analysis: {error_msg}")
+
+    def load_sample_data(self):
+        """Load sample data from test file."""
+        return {
+            "viral_fever": {
+                "basic_info": {
+                    "age": 25,
+                    "gender": "M",
+                    "weight": 70.0,
+                    "temperature": 38.5,
+                    "duration": "3",
+                    "chronic_diseases": False
+                },
+                "symptoms": {
+                    "fever": True,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": True,
+                    "body_pain": True,
+                    "nausea": False,
+                    "vomiting": False,
+                    "diarrhea": False,
+                    "rash": False,
+                    "sore_throat": True,
+                    "shortness_of_breath": False,
+                    "chest_pain": False,
+                    "confusion": False,
+                    "recent_travel": False,
+                    "medication": False,
+                    "appetite_change": True,
+                    "urine_change": False,
+                    "weight_loss": False,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": 3,
+                    "cough_type": None
+                },
+                "test_results": {
+                    "WBC": 6500,
+                    "Platelets": 180000,
+                    "Hemoglobin": 14.0,
+                    "Blood_Sugar": 90,
+                    "ALT": 25,
+                    "Creatinine": 0.8,
+                    "Malaria": False,
+                    "Dengue": False,
+                    "Typhoid": False
+                }
+            },
+            "dengue": {
+                "basic_info": {
+                    "age": 30,
+                    "gender": "F",
+                    "weight": 60.0,
+                    "temperature": 39.2,
+                    "duration": "5",
+                    "chronic_diseases": False
+                },
+                "symptoms": {
+                    "fever": True,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": True,
+                    "body_pain": True,
+                    "nausea": True,
+                    "vomiting": False,
+                    "diarrhea": False,
+                    "rash": True,
+                    "sore_throat": False,
+                    "shortness_of_breath": False,
+                    "chest_pain": False,
+                    "confusion": False,
+                    "recent_travel": True,
+                    "medication": False,
+                    "appetite_change": True,
+                    "urine_change": False,
+                    "weight_loss": False,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": 5,
+                    "cough_type": None
+                },
+                "test_results": {
+                    "WBC": 3000,
+                    "Platelets": 80000,
+                    "Hemoglobin": 12.5,
+                    "Blood_Sugar": 95,
+                    "ALT": 45,
+                    "Creatinine": 0.9,
+                    "Malaria": False,
+                    "Dengue": True,
+                    "Typhoid": False
+                }
+            },
+            "emergency": {
+                "basic_info": {
+                    "age": 45,
+                    "gender": "M",
+                    "weight": 80.0,
+                    "temperature": 40.5,
+                    "duration": "2",
+                    "chronic_diseases": True
+                },
+                "symptoms": {
+                    "fever": True,
+                    "fatigue": True,
+                    "cough": False,
+                    "headache": True,
+                    "body_pain": True,
+                    "nausea": False,
+                    "vomiting": False,
+                    "diarrhea": False,
+                    "rash": False,
+                    "sore_throat": False,
+                    "shortness_of_breath": True,
+                    "chest_pain": True,
+                    "confusion": True,
+                    "recent_travel": False,
+                    "medication": True,
+                    "appetite_change": False,
+                    "urine_change": False,
+                    "weight_loss": False,
+                    "night_sweats": False,
+                    "exposure": False,
+                    "fever_duration": 2,
+                    "cough_type": None
+                },
+                "test_results": {}
+            }
+        }
+
+    def load_sample_basic_info(self, sample_type):
+        """Load sample basic info data."""
+        data = self.sample_data[sample_type]["basic_info"]
+        self.age_var.set(str(data["age"]) if data["age"] else "")
+        self.gender_var.set(data["gender"] if data["gender"] else "")
+        self.weight_var.set(str(data["weight"]) if data["weight"] else "")
+        self.temp_var.set(str(data["temperature"]) if data["temperature"] else "")
+        self.duration_var.set(data["duration"] if data["duration"] else "")
+        self.chronic_var.set(data["chronic_diseases"])
+
+    def load_sample_symptoms(self, sample_type):
+        """Load sample symptoms data."""
+        data = self.sample_data[sample_type]["symptoms"]
+        for symptom, var in self.symptom_vars.items():
+            var.set(data.get(symptom, False))
+
+        self.fever_duration_var.set(str(data.get("fever_duration", "")) if data.get("fever_duration") else "")
+        self.cough_type_var.set(data.get("cough_type", "") if data.get("cough_type") else "")
+
+    def load_sample_tests(self, sample_type):
+        """Load sample test results data."""
+        data = self.sample_data[sample_type]["test_results"]
+
+        # Numeric tests
+        for test, var in self.test_vars.items():
+            value = data.get(test)
+            var.set(str(value) if value is not None else "")
+
+        # Boolean tests
+        for test, var in self.boolean_test_vars.items():
+            value = data.get(test)
+            if value is True:
+                var.set("positive")
+            elif value is False:
+                var.set("negative")
+            else:
+                var.set("")
 
     def clear_all(self):
         # Clear basic info

@@ -208,8 +208,9 @@ def get_symptom_analysis(user_data):
         exit(1)
 
     # Add educational disclaimer
-    disclaimer = "\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
-    return analysis + disclaimer
+    # disclaimer = "\n\nDisclaimer: This is for educational purposes only. Consult a healthcare professional for medical advice."
+    # return analysis + disclaimer
+    return analysis
 
 
 def get_mock_analysis(user_data):
